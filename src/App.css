@@ -1,0 +1,21 @@
+.grid {
+    display: grid;
+    grid-template-columns: repeat(15, 20px);
+    grid-template-rows: repeat(15, 20px);
+    
+}
+
+.cell {
+    width: 20px;
+    height: 20px;
+    background-color: #D9CAAA;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.double-word { background-color: #FBBAC2;}
+.triple-word { background-color: #F7616C;}
+.double-letter { background-color: #B8ECF4;}
+.triple-letter { background-color: #0BBDF1;}
