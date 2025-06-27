@@ -1,29 +1,12 @@
-// // import React from "react";
-// import "./App.css";
-// import BoardEditor from "./components/BoardEditor";
-
-
-
-// export function App() {
-
-//     return (
-//        <div className="App">
-//         <h1>Scrabble Board Editor</h1>
-//         <BoardEditor />
-//        </div>
-//     );
-// }
-
-// export default App;
-
+// src/App.tsx
 
 import "./App.css";
-import FrameEditorManager from "./components/FrameManager";
+import GameManager from "./components/managers/GameManager";
 
 export default function App() {
   return (
     <div className="App">
-      <FrameEditorManager />
+      <GameManager />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import CursorArrow from "./CursorArrow";
-import type { Tile } from "../types/Frame";
-import type { Arrow } from "../types/Frame";
-import "./GameBoard.css";
+import type { Tile } from "../../types/ScrabbleTypes";
+import type { Arrow } from "../../types/ScrabbleTypes";
+import "./../../styles/GameBoard.css";
 
 type GameBoardProps = {
     board: Tile[][];
@@ -9,7 +9,11 @@ type GameBoardProps = {
     onCellClick: (row: number, col: number) => void;
 };
 
-export default function GameBoard({ board, arrow, onCellClick }: GameBoardProps) {
+export default function GameBoard({
+    board,
+    arrow,
+    onCellClick,
+}: GameBoardProps) {
     return (
         <div className="board-grid">
             {board.map((row, rowIndex) =>
@@ -24,11 +28,13 @@ export default function GameBoard({ board, arrow, onCellClick }: GameBoardProps)
                     return (
                         <div
                             key={`${rowIndex}-${colIndex}`}
-                            className={`cell${isSelected ? " selected" : ""}${isSelectMode ? " select-outline" : ""}`}
+                            className={`cell${isSelected ? " selected" : ""}${
+                                isSelectMode ? " select-outline" : ""
+                            }`}
                             onClick={() => onCellClick(rowIndex, colIndex)}
                         >
                             {cell.letter && (
-                                <span className={cell.isLocked ? "locked" : "unlocked"}>
+                                <span className={cell.state}>
                                     {cell.letter}
                                 </span>
                             )}
