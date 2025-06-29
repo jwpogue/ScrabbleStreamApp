@@ -2,16 +2,41 @@ export type TileState = "unlocked" | "locked" | "current";
 export type DirectionState = "horizontal" | "vertical";
 export type ArrowMode = "edit" | "select" | "hidden";
 
+// Base Effect type
 export type Effect =
-    | { type: "highlight-area"; positions: [number, number][] }
-    | { type: "highlight-tile"; position: [number, number] }
-    | { type: "show-potential-play"; tiles: [number, number][] }
-    | { type: "none" }; // for simple transition/no visual effect
+  | { type: "play"; payload: PlayEffect }
+  | { type: "highlight"; payload: HighlightEffect }
+  | { type: "none"; payload: NoneEffect}
+  // Add more effect types as needed
 
-export type SequenceType =
-    | "consecutive-replacement"
-    | "consecutive-additive"
+export interface PlayEffect {
+  tiles: TilePlacement[]; // includes position + letter
+}
+
+export interface TilePlacement {
+  x: number;
+  y: number;
+  letter: string;
+}
+
+export interface HighlightEffect {
+  squares: { x: number; y: number }[];
+}
+
+// No-op effect
+export type NoneEffect = {};
+
+
+
+
+
+export type ChronologyType =
+    | "consecutive"
     | "simultaneous";
+
+export type AdditivityType =
+    | "cumulative"
+    | "temporary"
 
 export type Tile = {
     letter: string | null;
@@ -25,19 +50,19 @@ export type Arrow = {
     direction: DirectionState;
 };
 
+
 export type FrameNode = {
-    id: string;
-    effect: Effect;
-    transitionIn?: Transition;
-    transitionOut?: Transition;
-    board: Tile[][];
+  id: string;
+  effect: Effect;          // Stack of effects to apply in this frame
+  transitionIn?: Transition;  // Optional entrance transition
+  transitionOut?: Transition; // Optional exit transition
 };
 
 export type SequenceNode = {
     id: string; 
-    type: SequenceType;
+    chronologyType: ChronologyType;
+    additivityType: AdditivityType;
     children: ScrabbleNode[];
-    board: Tile[][]; // this is the end board, cached
 };
 
 export type ScrabbleNode = FrameNode | SequenceNode;

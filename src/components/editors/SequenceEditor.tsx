@@ -1,57 +1,58 @@
+// src/components/editors/SequenceEditor.tsx
 import React from "react";
-import type {
-  SequenceNode,
-  FrameNode,
-  ScrabbleNode,
-  SequenceType,
-} from "../../types/ScrabbleTypes";
+import type { SequenceNode, FrameNode, ScrabbleNode } from "../../types/ScrabbleTypes";
 
 interface SequenceEditorProps {
   sequence: SequenceNode;
   updateSequence: (updated: Partial<SequenceNode>) => void;
   selectedId: string;
   onSelectNode: (nodeId: string) => void;
-  onAddChild: (index: number) => void;
-  onAddSequence: (index: number) => void;
   onDeleteChild: (childId: string) => void;
 }
+
+const isFrameNode = (node: ScrabbleNode): node is FrameNode => "effect" in node;
 
 export default function SequenceEditor({
   sequence,
   updateSequence,
   selectedId,
   onSelectNode,
-  onAddChild,
-  onAddSequence,
   onDeleteChild,
 }: SequenceEditorProps) {
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    updateSequence({ type: e.target.value as SequenceType });
-  };
-
-  const isFrameNode = (node: ScrabbleNode): node is FrameNode =>
-    "effect" in node;
-
   return (
     <div className="sequence-editor">
-      <h3>Sequence Editor</h3>
+      <h3>Sequence Properties</h3>
+
       <label>
-        Sequence Type:
-        <select value={sequence.type} onChange={handleTypeChange}>
-          <option value="consecutive-replacement">Consecutive (Replace)</option>
-          <option value="consecutive-additive">Consecutive (Additive)</option>
+        Chronology:
+        <select
+          value={sequence.chronologyType}
+          onChange={(e) => updateSequence({ chronologyType: e.target.value as SequenceNode["chronologyType"] })}
+        >
+          <option value="consecutive">Consecutive</option>
           <option value="simultaneous">Simultaneous</option>
+        </select>
+      </label>
+
+      <label>
+        Additivity:
+        <select
+          value={sequence.additivityType}
+          onChange={(e) => updateSequence({ additivityType: e.target.value as SequenceNode["additivityType"] })}
+        >
+          <option value="cumulative">Cumulative</option>
+          <option value="temporary">Temporary</option>
         </select>
       </label>
 
       <div className="child-list">
         <h4>Children</h4>
         <ul style={{ padding: 0, listStyle: "none" }}>
-          {sequence.children.map((child, index) => {
+          {sequence.children.map((child) => {
             const isSelected = child.id === selectedId;
             const label = isFrameNode(child)
               ? `Frame (${child.effect.type})`
-              : `Sequence (${child.type})`;
+              : `Sequence (${child.chronologyType})`;
 
             return (
               <li
@@ -70,50 +71,19 @@ export default function SequenceEditor({
                 }}
               >
                 <span>{label}</span>
-                <div style={{ display: "flex", gap: "0.25rem" }}>
-                  <button
-                    title="Add Frame after"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onAddChild(index + 1);
-                    }}
-                  >
-                    ＋F
-                  </button>
-                  <button
-                    title="Add Sequence after"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onAddSequence(index + 1);
-                    }}
-                  >
-                    ＋S
-                  </button>
-                  <button
-                    title="Delete"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteChild(child.id);
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
+                <button
+                  title="Delete"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteChild(child.id);
+                  }}
+                >
+                  ✕
+                </button>
               </li>
             );
           })}
         </ul>
-        <div style={{ marginTop: "0.5rem" }}>
-          <button onClick={() => onAddChild(sequence.children.length)}>
-            + Add Frame
-          </button>
-          <button
-            onClick={() => onAddSequence(sequence.children.length)}
-            style={{ marginLeft: "0.5rem" }}
-          >
-            + Add Sequence
-          </button>
-        </div>
       </div>
     </div>
   );

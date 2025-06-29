@@ -5,25 +5,29 @@ import "./../../styles/GameBoard.css";
 
 type GameBoardProps = {
     board: Tile[][];
-    arrow: Arrow;
-    onCellClick: (row: number, col: number) => void;
+    arrow?: Arrow;
+    editable: boolean;
+    onCellClick?: (row: number, col: number) => void;
 };
 
 export default function GameBoard({
     board,
     arrow,
-    onCellClick,
+    editable,
+    onCellClick = () => {},
 }: GameBoardProps) {
     return (
         <div className="board-grid">
             {board.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
                     const isSelected =
+                        editable &&
+                        arrow &&
                         arrow.mode !== "hidden" &&
                         arrow.x === colIndex &&
                         arrow.y === rowIndex;
 
-                    const isSelectMode = isSelected && arrow.mode === "select";
+                    const isSelectMode = isSelected && arrow?.mode === "select";
 
                     return (
                         <div
@@ -31,14 +35,16 @@ export default function GameBoard({
                             className={`cell${isSelected ? " selected" : ""}${
                                 isSelectMode ? " select-outline" : ""
                             }`}
-                            onClick={() => onCellClick(rowIndex, colIndex)}
+                            onClick={() =>
+                                editable && onCellClick(rowIndex, colIndex)
+                            }
                         >
                             {cell.letter && (
                                 <span className={cell.state}>
                                     {cell.letter}
                                 </span>
                             )}
-                            {isSelected && arrow.mode === "edit" && (
+                            {isSelected && arrow?.mode === "edit" && (
                                 <CursorArrow arrow={arrow} />
                             )}
                         </div>
