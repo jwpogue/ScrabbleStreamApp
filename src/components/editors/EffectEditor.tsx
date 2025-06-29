@@ -13,8 +13,7 @@ interface EffectEditorProps {
     boardSize: number;
 }
 
-// Helper function that constructs a correctly typed Effect object
-function createEffect<T extends keyof typeof effects>(type: T): Effect {
+export function createEffect<T extends keyof typeof effects>(type: T): Effect {
     const def = effects[type];
     return {
         type,
@@ -54,6 +53,7 @@ export default function EffectEditor({
             {/* Render the editor for the current effect */}
             {effect.type === "play" && (
                 <effects.play.Editor
+                    key={`${effect.type}-${frameIndex}`}
                     payload={effect.payload}
                     onChange={(p) => onChange({ type: "play", payload: p })}
                     liveBoard={liveBoard}
@@ -61,6 +61,7 @@ export default function EffectEditor({
             )}
             {effect.type === "highlight" && (
                 <effects.highlight.Editor
+                    key={`${effect.type}-${frameIndex}`}
                     payload={effect.payload}
                     onChange={(p) =>
                         onChange({ type: "highlight", payload: p })
@@ -70,6 +71,7 @@ export default function EffectEditor({
             )}
             {effect.type === "none" && (
                 <effects.none.Editor
+                    key={`${effect.type}-${frameIndex}`}
                     payload={effect.payload}
                     onChange={(p) => onChange({ type: "none", payload: p })}
                     liveBoard={liveBoard}

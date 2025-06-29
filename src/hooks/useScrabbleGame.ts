@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { generateEmptyBoard } from "../lib/boardUtils";
-import type {
+\import type {
     AdditivityType,
     ChronologyType,
     Effect,
@@ -10,6 +9,7 @@ import type {
     ScrabbleNode,
     SequenceNode,
 } from "../types/ScrabbleTypes";
+import { effects } from "../components/editors/effects";
 
 function isSequenceNode(node: ScrabbleNode): node is SequenceNode {
     return (node as SequenceNode).children !== undefined;
@@ -77,18 +77,23 @@ export function useScrabbleGame(initialGame: Game) {
         index: number,
         effectType: Effect["type"]
     ) => {
-        console.log("🚀 handleAddChild called with:", { parentId, index, effectType });
+        console.log("🚀 handleAddChild called with:", {
+            parentId,
+            index,
+            effectType,
+        });
         console.log("🎯 Root sequence ID:", game.rootSequence.id);
         console.log("🔍 Current game state:", JSON.stringify(game, null, 2));
-        
+
         // Handle React Arborist's special root ID by converting it to actual root ID
-        const actualParentId = parentId === "__REACT_ARBORIST_INTERNAL_ROOT__" 
-            ? game.rootSequence.id 
-            : parentId;
-        
+        const actualParentId =
+            parentId === "__REACT_ARBORIST_INTERNAL_ROOT__"
+                ? game.rootSequence.id
+                : parentId;
+
         const parent = findNodeById(game.rootSequence, actualParentId);
         console.log("📍 Found parent:", parent);
-        
+
         if (!parent || !isSequenceNode(parent)) {
             console.log("❌ Parent not found or not a sequence node");
             return;
@@ -96,7 +101,7 @@ export function useScrabbleGame(initialGame: Game) {
 
         const newFrame: FrameNode = {
             id: uuidv4(),
-            effect: createDefaultEffect(effectType),
+            effect: createDefaultEffect(effectType) as Effect, // <== 👈 Explicit cast
         };
         console.log("✨ Created new frame:", newFrame);
 
@@ -110,10 +115,13 @@ export function useScrabbleGame(initialGame: Game) {
         // Always use the actual parent ID for updates
         if (actualParentId === game.rootSequence.id) {
             console.log("🎯 Updating root sequence directly");
-            setGame(prev => {
+            setGame((prev) => {
                 const newGame = {
                     ...prev,
-                    rootSequence: { ...prev.rootSequence, children: newChildren }
+                    rootSequence: {
+                        ...prev.rootSequence,
+                        children: newChildren,
+                    },
                 };
                 console.log("🎊 New game state:", newGame);
                 return newGame;
@@ -131,17 +139,23 @@ export function useScrabbleGame(initialGame: Game) {
         chronologyType: ChronologyType,
         additivityType: AdditivityType
     ) => {
-        console.log("🚀 handleAddSequence called with:", { parentId, index, chronologyType, additivityType });
+        console.log("🚀 handleAddSequence called with:", {
+            parentId,
+            index,
+            chronologyType,
+            additivityType,
+        });
         console.log("🎯 Root sequence ID:", game.rootSequence.id);
-        
+
         // Handle React Arborist's special root ID by converting it to actual root ID
-        const actualParentId = parentId === "__REACT_ARBORIST_INTERNAL_ROOT__" 
-            ? game.rootSequence.id 
-            : parentId;
-        
+        const actualParentId =
+            parentId === "__REACT_ARBORIST_INTERNAL_ROOT__"
+                ? game.rootSequence.id
+                : parentId;
+
         const parent = findNodeById(game.rootSequence, actualParentId);
         console.log("📍 Found parent:", parent);
-        
+
         if (!parent || !isSequenceNode(parent)) {
             console.log("❌ Parent not found or not a sequence node");
             return;
@@ -165,10 +179,13 @@ export function useScrabbleGame(initialGame: Game) {
         // Always use the actual parent ID for updates
         if (actualParentId === game.rootSequence.id) {
             console.log("🎯 Updating root sequence directly");
-            setGame(prev => {
+            setGame((prev) => {
                 const newGame = {
                     ...prev,
-                    rootSequence: { ...prev.rootSequence, children: newChildren }
+                    rootSequence: {
+                        ...prev.rootSequence,
+                        children: newChildren,
+                    },
                 };
                 console.log("🎊 New game state:", newGame);
                 return newGame;
@@ -183,18 +200,23 @@ export function useScrabbleGame(initialGame: Game) {
     // FIX: Enhanced deletion that handles sequences with children
     const handleDeleteChild = (parentId: string, childId: string) => {
         // Handle React Arborist's special root ID
-        const actualParentId = parentId === "__REACT_ARBORIST_INTERNAL_ROOT__" 
-            ? game.rootSequence.id 
-            : parentId;
-            
+        const actualParentId =
+            parentId === "__REACT_ARBORIST_INTERNAL_ROOT__"
+                ? game.rootSequence.id
+                : parentId;
+
         const parent = findNodeById(game.rootSequence, actualParentId);
         if (!parent || !isSequenceNode(parent)) return;
 
         const childToDelete = findNodeById(game.rootSequence, childId);
-        
+
         // If deleting a sequence with children, you might want to:
         // Option 1: Prevent deletion if it has children
-        if (childToDelete && isSequenceNode(childToDelete) && childToDelete.children.length > 0) {
+        if (
+            childToDelete &&
+            isSequenceNode(childToDelete) &&
+            childToDelete.children.length > 0
+        ) {
             const confirmDelete = window.confirm(
                 `This sequence has ${childToDelete.children.length} children. Delete anyway?`
             );
@@ -232,9 +254,10 @@ export function useScrabbleGame(initialGame: Game) {
         });
 
         // Handle React Arborist's special root ID
-        const actualNewParentId = newParentId === "__REACT_ARBORIST_INTERNAL_ROOT__" 
-            ? game.rootSequence.id 
-            : newParentId;
+        const actualNewParentId =
+            newParentId === "__REACT_ARBORIST_INTERNAL_ROOT__"
+                ? game.rootSequence.id
+                : newParentId;
 
         // If this is the target parent, insert the moved node
         if (node.id === actualNewParentId && movedNode) {
@@ -248,16 +271,21 @@ export function useScrabbleGame(initialGame: Game) {
 
         // Otherwise, recursively process children
         const processedChildren = filteredChildren.map((child) => {
-            const result = moveNodeInTree(child, nodeId, actualNewParentId, newIndex);
+            const result = moveNodeInTree(
+                child,
+                nodeId,
+                actualNewParentId,
+                newIndex
+            );
             if (result.movedNode && !movedNode) {
                 movedNode = result.movedNode;
             }
             return result.newTree;
         });
 
-        return { 
-            newTree: { ...node, children: processedChildren }, 
-            movedNode 
+        return {
+            newTree: { ...node, children: processedChildren },
+            movedNode,
         };
     };
 
@@ -288,17 +316,14 @@ export function useScrabbleGame(initialGame: Game) {
     };
 }
 
-const createDefaultEffect = (type: Effect["type"]): Effect => {
-    switch (type) {
-        case "play":
-        case "show-potential-play":
-            return { type, tiles: [] };
-        case "highlight-tile":
-            return { type, position: [0, 0] };
-        case "highlight-area":
-            return { type, positions: [] };
-        case "none":
-        default:
-            return { type: "none" };
-    }
+const createDefaultEffect = <T extends keyof typeof effects>(
+    type: T
+): (typeof effects)[T] extends { type: T; initialPayload: () => infer P }
+    ? { type: T; payload: P }
+    : never => {
+    const def = effects[type];
+    return {
+        type: def.type,
+        payload: def.initialPayload(),
+    } as any;
 };
